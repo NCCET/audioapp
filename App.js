@@ -2,13 +2,24 @@ import * as React from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import Constants from 'expo-constants';
 import { Audio } from 'expo-av';
+import Login from './components/Login';
+import SignUp from './components/SignUp';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import {Routes, Route} from 'react-router-dom';
+import { AuthProvider } from './components/AuthContext';
+import { useNavigation } from '@react-navigation/native';
+
 // You can import from local files
-import AssetExample from './components/AssetExample';
+
 
 // or any pure javascript modules available in npm
-import { Card } from 'react-native-paper';
+const Stack = createStackNavigator();
 
 export default function App() {
+
+  const navigation = useNavigation();
+
   const [recording, setRecording] = React.useState();
   const [recordings, setRecordings] = React.useState([]);
   const [message, setMessage] = React.useState('');
@@ -80,17 +91,29 @@ export default function App() {
     });
   }
   return (
-    <View style={styles.container}>
-      <Text>{message}</Text>
-      <Button
-        title={recording ? 'Stop Recording' : 'Start Recording'}
-        onPress={recording ? stopRecording : startRecording}
-      />
-      {getRecordingLines()}
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" options={{ title: 'Recordings' }}>
+          {(props) => ( // pass navigation as a prop here
+            <View style={styles.container}>
+              <Text>{message}</Text>
+              <Button
+                title={recording ? 'Stop Recording' : 'Start Recording'}
+                onPress={recording ? stopRecording : startRecording}
+              />
+              <Button title="Go to Login" onPress={() => props.navigation.navigate('Login')} />
+              <Button title="Go to SignUp" onPress={() => props.navigation.navigate('SignUp')} />
+
+              {getRecordingLines()}
+            </View>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="SignUp" component={SignUp} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
